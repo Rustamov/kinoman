@@ -1,4 +1,6 @@
-export const createUserTitleTemplate = () => {
+import {createElement} from "../utils";
+
+const createUserTitleTemplate = () => {
   return (
     `<section class="header__profile profile">
     <p class="profile__rating">Movie Buff</p>
@@ -6,3 +8,25 @@ export const createUserTitleTemplate = () => {
   </section>`
   );
 };
+
+export default class UserTitle {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createUserTitleTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
