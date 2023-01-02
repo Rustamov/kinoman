@@ -1,4 +1,6 @@
-import {formatReleaseDate, formatCommentDate, createElement} from "../utils";
+import {formatReleaseDate, formatCommentDate} from "../utils/common";
+import AbstractComponent from "../components/abstract-component";
+
 
 const createGenresMarkup = (genres) => {
   return genres
@@ -173,25 +175,22 @@ const createFilmDetailsTemplate = (film) => {
 };
 
 
-export default class FilmDetails {
+export default class FilmDetails extends AbstractComponent {
   constructor(film) {
+    super(film);
     this._film = film;
-    this._element = null;
   }
 
   getTemplate() {
     return createFilmDetailsTemplate(this._film);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
+  setCloseButtonHandler(handler) {
+    const detailsFilmCloseButtonEl = this.getElement().querySelector(`.film-details__close-btn`);
 
-    return this._element;
+    detailsFilmCloseButtonEl.addEventListener(`click`, () => {
+      handler();
+    });
   }
 
-  removeElement() {
-    this._element = null;
-  }
 }

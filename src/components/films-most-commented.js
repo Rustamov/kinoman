@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "../components/abstract-component";
 
 const createMostCommentedFilmsTemplate = () => {
   return (
@@ -9,25 +9,11 @@ const createMostCommentedFilmsTemplate = () => {
   );
 };
 
-export default class MostCommentedFilms {
-  constructor() {
-    this._element = null;
-  }
+export default class MostCommentedFilms extends AbstractComponent {
 
   getTemplate() {
     return createMostCommentedFilmsTemplate();
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }
 

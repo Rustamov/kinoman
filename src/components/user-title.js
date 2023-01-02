@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "../components/abstract-component";
 
 const createUserTitleTemplate = () => {
   return (
@@ -9,24 +9,8 @@ const createUserTitleTemplate = () => {
   );
 };
 
-export default class UserTitle {
-  constructor() {
-    this._element = null;
-  }
-
+export default class UserTitle extends AbstractComponent {
   getTemplate() {
     return createUserTitleTemplate();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
