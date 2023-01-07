@@ -60,7 +60,7 @@ export default class Sort extends AbstractComponent {
         }
       });
 
-      evt.target.classList.add(`sort__button--active`)
+      evt.target.classList.add(`sort__button--active`);
 
       handler(this._currentSortType);
     });
