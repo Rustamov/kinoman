@@ -1,3 +1,7 @@
+import {makeCounter} from "../utils/common";
+
+const generateUniqueId = makeCounter()
+
 const FILMS_NAMES = [
   `The Dance of Life`,
   `Sagebrush Trail`,
@@ -146,7 +150,7 @@ const generateFilm = () => {
   const description = generateRandomDescription(getRandomInteger(1, 5));
   const comments = generateRandomComments(getRandomInteger(0, 5));
   const genres = generateRandomGenres(getRandomInteger(1, 5));
-  const duration = `${getRandomInteger(1, 4)}h ${getRandomInteger(1, 60)}m`;
+  const duration = getRandomInteger(40, 200); // minutes
 
   const originalName = `The Great Flamarion`;
   const director = `Anthony Mann`;
@@ -156,6 +160,7 @@ const generateFilm = () => {
   const country = `USA`;
 
   return {
+    id: String(generateUniqueId()),
     title: FILMS_NAMES[randomFilmIndex],
     poster: FILMS_POSTERS[randomFilmIndex],
     description,

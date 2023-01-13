@@ -4,6 +4,7 @@ export const SortType = {
   DEFAULT: `default`,
   BY_DATE: `by_date`,
   BY_RATING: `by_rating`,
+  BY_COMMENTS: `by_comments`,
 };
 
 const createSortTemplate = () => {
@@ -27,6 +28,7 @@ export default class Sort extends AbstractComponent {
     super();
 
     this._currentSortType = SortType.DEFAULT;
+    this._onSortTypeChangeHandler = null;
   }
 
   getTemplate() {
@@ -52,17 +54,25 @@ export default class Sort extends AbstractComponent {
         return;
       }
 
-      this._currentSortType = sortType;
-
-      this.getElement().querySelectorAll(`.sort__button`).forEach((link) => {
-        if (link.classList.contains(`sort__button--active`)) {
-          link.classList.remove(`sort__button--active`);
-        }
-      });
-
-      evt.target.classList.add(`sort__button--active`);
-
-      handler(this._currentSortType);
+      this.setSortType(sortType);
     });
+
+    this._onSortTypeChangeHandler = handler;
   }
+
+  setSortType(sortType) {
+    this._currentSortType = sortType;
+
+    this.getElement().querySelectorAll(`.sort__button`).forEach((link) => {
+      if (link.classList.contains(`sort__button--active`)) {
+        link.classList.remove(`sort__button--active`);
+      }
+    });
+
+    this.getElement().querySelector(`.sort__button[data-sort-type="${sortType}"]`)
+    .classList.add(`sort__button--active`);
+
+    this._onSortTypeChangeHandler(this._currentSortType);
+  }
+
 }

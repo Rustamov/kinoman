@@ -3,7 +3,7 @@ import FilmDetails from '../components/film-details';
 
 import {RenderPosition, render, remove, replace} from '../utils/render';
 
-const Mode = {
+export const Mode = {
   DEFAULT: `default`,
   POPUP: `popup`,
 };
@@ -25,6 +25,7 @@ export default class MovieController {
   }
 
   render(film) {
+    this.filmId = film.id;
 
     const oldFilmComponent = this._filmComponent;
     const oldDetailsFilmComponent = this._detailsFilmComponent;
@@ -67,6 +68,21 @@ export default class MovieController {
         isFavorite: !film.isFavorite
       }));
     });
+    this._detailsFilmComponent.setCommentDeleteClickHandler((index) => {
+      this._onDataChange(this, film, Object.assign({}, film, {
+        comments: [].concat(film.comments.slice(0, index), film.comments.slice(index + 1))
+      }));
+    });
+    this._detailsFilmComponent.setSubmitHandler(() => {
+      const newComment = this._detailsFilmComponent.getData();
+      console.log(newComment);
+
+      this._onDataChange(this, film, Object.assign({}, film, {
+        // comments: [].concat(film.comments.slice(), newComment),
+        comments: [].concat(film.comments.slice(), newComment)
+      }));
+    });
+
 
     if (oldFilmComponent && oldDetailsFilmComponent) {
       replace(this._filmComponent, oldFilmComponent);
@@ -80,6 +96,12 @@ export default class MovieController {
     if (this._mode !== Mode.DEFAULT) {
       this._closeDetailsFilm();
     }
+  }
+
+  destroy() {
+    remove(this._filmComponent);
+    remove(this._detailsFilmComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
   _showDetailsFilm() {

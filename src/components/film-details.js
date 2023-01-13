@@ -1,5 +1,6 @@
-import {formatReleaseDate, formatCommentDate} from "../utils/common";
+import {formatReleaseDate, formatFilmDuration} from "../utils/common";
 import AbstractSmartComponent from "../components/abstract-smart-component";
+import moment from "moment/moment";
 
 
 const createGenresMarkup = (genres) => {
@@ -13,8 +14,11 @@ const createGenresMarkup = (genres) => {
 };
 
 const createCommentsMarkup = (comments) => {
+
   return comments
     .map((comment) => {
+      const date = moment(comment.date).startOf(`day`).fromNow();
+
       return (
         `<li class="film-details__comment">
         <span class="film-details__comment-emoji">
@@ -24,7 +28,7 @@ const createCommentsMarkup = (comments) => {
           <p class="film-details__comment-text">${comment.message}</p>
           <p class="film-details__comment-info">
             <span class="film-details__comment-author">${comment.author}</span>
-            <span class="film-details__comment-day">${formatCommentDate(comment.date)}</span>
+            <span class="film-details__comment-day">${date}</span>
             <button class="film-details__comment-delete">Delete</button>
           </p>
         </div>
@@ -32,6 +36,19 @@ const createCommentsMarkup = (comments) => {
       );
     })
     .join(`\n`);
+};
+
+const parseFormData = (formData) => {
+  const emoji = formData.get(`comment-emoji`) !== null
+    ? `/images/emoji/${formData.get(`comment-emoji`)}.png`
+    : `./images/emoji/sleeping.png`;
+
+  return {
+    author: `John Doe`,
+    emoji,
+    message: formData.get(`comment`),
+    date: new Date(),
+  };
 };
 
 const createFilmDetailsTemplate = (film, options = {}) => {
@@ -105,7 +122,7 @@ const createFilmDetailsTemplate = (film, options = {}) => {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Runtime</td>
-                  <td class="film-details__cell">${duration}</td>
+                  <td class="film-details__cell">${formatFilmDuration(duration)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Country</td>
@@ -192,6 +209,8 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._addWatchlistButtonClickHandler = null;
     this._markWatchedButtonClickHandler = null;
     this._favoriteButtonClickHandler = null;
+    this._commentDeleteClickHandler = null;
+    this._submitHandler = null;
 
     this._newCommentEmoji = null;
     this._newCommentText = null;
@@ -246,11 +265,47 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._favoriteButtonClickHandler = handler;
   }
 
+  setCommentDeleteClickHandler(handler) {
+    this.getElement().querySelectorAll(`.film-details__comment-delete`).forEach((button, index) => {
+      button.addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        handler(index);
+      });
+    });
+
+    this._commentDeleteClickHandler = handler;
+  }
+
+  getData() {
+    const form = this.getElement().querySelector(`form`);
+    const formData = new FormData(form);
+
+    return parseFormData(formData);
+  }
+
+  setSubmitHandler(handler) {
+    // this.getElement().querySelector(`form`)
+    //   .addEventListener(`submit`, handler);
+
+    this.getElement().querySelector(`.film-details__comment-input`)
+      .addEventListener(`keydown`, function(e) {
+        if (!(e.keyCode === 13 && (e.metaKey || e.ctrlKey))) {
+          return;
+        }
+
+        handler();
+      });
+
+    this._submitHandler = handler;
+  }
+
   recoveryListeners() {
     this.setCloseButtonHandler(this._closeButtonHandler);
     this.setAddWatchlistButtonClickHandler(this._addWatchlistButtonClickHandler);
     this.setMarkWatchedButtonClickHandler(this._markWatchedButtonClickHandler);
     this.setFavoriteButtonClickHandler(this._favoriteButtonClickHandler);
+    this.setCommentDeleteClickHandler(this._commentDeleteClickHandler);
+    this.setSubmitHandler(this._submitHandler);
 
     this._subscribeOnEvents();
   }
@@ -272,6 +327,4 @@ export default class FilmDetails extends AbstractSmartComponent {
         this._newCommentText = evt.target.value;
       });
   }
-
-
 }
