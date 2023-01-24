@@ -3,6 +3,16 @@ import AbstractSmartComponent from "../components/abstract-smart-component";
 import moment from "moment/moment";
 
 
+const makeCommentId = () => {
+  let count = 6000;
+
+  return () => {
+    return ++count;
+  };
+};
+
+const generateCommentId = makeCommentId();
+
 const createGenresMarkup = (genres) => {
   return genres
     .map((genre) => {
@@ -39,43 +49,59 @@ const createCommentsMarkup = (comments) => {
 };
 
 const parseFormData = (formData) => {
-  const emoji = formData.get(`comment-emoji`) !== null
+  const emotion = formData.get(`comment-emoji`) !== null
     ? `/images/emoji/${formData.get(`comment-emoji`)}.png`
     : `./images/emoji/sleeping.png`;
 
   return {
     author: `John Doe`,
-    emoji,
+    emotion,
     message: formData.get(`comment`),
     date: new Date(),
+    id: generateCommentId,
   };
 };
 
 const createFilmDetailsTemplate = (film, options = {}) => {
   const {
-    title,
-    poster,
-    description,
-    rating,
-    duration,
-    genres,
     comments,
-    originalName,
-    director,
-    writers,
-    actors,
-    releaseDate,
-    country,
-    isOnWatchlist,
-    isWatched,
-    isFavorite
+    filmInfo,
+    userDetails,
+
   } = film;
+
+  const {
+    actors,
+    ageRating,
+    alternativeTitle,
+    description,
+    director,
+    genre,
+    poster,
+    release,
+    runtime,
+    title,
+    totalRating,
+    writers,
+
+  } = filmInfo;
+
+  const {
+    releaseCountry,
+    date,
+  } = release;
+
+  const {
+    isOnWatchlist,
+    isAlreadyWatched,
+    watchingDate,
+    isFavorite,
+  } = userDetails;
 
   const {
     newCommentEmoji,
     newCommentText
   } = options;
-
 
   return (
     `<section class="film-details">
@@ -95,11 +121,11 @@ const createFilmDetailsTemplate = (film, options = {}) => {
               <div class="film-details__info-head">
                 <div class="film-details__title-wrap">
                   <h3 class="film-details__title">${title}</h3>
-                  <p class="film-details__title-original">Original: ${originalName}</p>
+                  <p class="film-details__title-original">Original: ${alternativeTitle}</p>
                 </div>
 
                 <div class="film-details__rating">
-                  <p class="film-details__total-rating">${rating}</p>
+                  <p class="film-details__total-rating">${totalRating}</p>
                 </div>
               </div>
 
@@ -110,28 +136,28 @@ const createFilmDetailsTemplate = (film, options = {}) => {
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${writers}</td>
+                  <td class="film-details__cell">${writers.join(`, `)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Actors</td>
-                  <td class="film-details__cell">${actors}</td>
+                  <td class="film-details__cell">${actors.join(`, `)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>
-                  <td class="film-details__cell">${formatReleaseDate(releaseDate)}</td>
+                  <td class="film-details__cell">${formatReleaseDate(date)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Runtime</td>
-                  <td class="film-details__cell">${formatFilmDuration(duration)}</td>
+                  <td class="film-details__cell">${formatFilmDuration(runtime)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Country</td>
-                  <td class="film-details__cell">${country}</td>
+                  <td class="film-details__cell">${releaseCountry}</td>
                 </tr>
                 <tr class="film-details__row">
-                  <td class="film-details__term">Genre${genres.length > 1 ? `s` : ``}</td>
+                  <td class="film-details__term">Genre${genre.length > 1 ? `s` : ``}</td>
                   <td class="film-details__cell">
-                    ${createGenresMarkup(genres)}
+                    ${createGenresMarkup(genre)}
                 </tr>
               </table>
 
@@ -145,7 +171,7 @@ const createFilmDetailsTemplate = (film, options = {}) => {
             <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isOnWatchlist ? `checked` : ``}>
             <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isWatched ? `checked` : ``}>
+            <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isAlreadyWatched ? `checked` : ``}>
             <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
             <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavorite ? `checked` : ``}>

@@ -8,8 +8,6 @@ import ShowMoreButton from '../components/show-more-button';
 import Sort, {SortType} from '../components/sort';
 
 
-import {generateFilms} from '../mock/film';
-
 import {RenderPosition, render, remove} from '../utils/render';
 
 const SHOWING_FILMS_COUNT_ON_START = 5;
@@ -54,9 +52,11 @@ const getSortedFilms = (films, sortType, from, to) => {
 };
 
 export default class PageController {
-  constructor(container, movieModel) {
+  constructor(container, api, movieModel, commentsModel) {
     this._container = container;
+    this._api = api;
     this._movieModel = movieModel;
+    this._commentsModel = commentsModel;
     this._showedMovieControllers = [];
     this._topRatedMovieControllers = [];
     this._mostCommentedMovieControllers = [];
@@ -82,6 +82,9 @@ export default class PageController {
 
   render() {
     const films = this._movieModel.getFilms();
+
+
+    console.log(this._commentsModel);
 
     let showingFilms = films.slice(); // for saving oringinal <films> items order
 
@@ -189,20 +192,23 @@ export default class PageController {
     console.log(movieController, oldData, newData);
 
     if (newData === null) {
-      taskController.destroy();
-      this._updateTasks(this._showingTasksCount);
+      movieController.destroy();
+      this._updateFilms(this._showingFilmsCount);
     } else {
-      const isSuccess = this._movieModel.updateFilm(oldData.id, newData);
-      if (isSuccess) {
-        const allMovieControllers = [].concat(this._showedMovieControllers, this._topRatedMovieControllers, this._mostCommentedMovieControllers)
-                                      .slice();
+      this._api.updateFilm(oldData.id, newData)
+        .then((movieModel) => {
+          const isSuccess = this._movieModel.updateFilm(oldData.id, movieModel);
+          if (isSuccess) {
+            const allMovieControllers = [].concat(this._showedMovieControllers, this._topRatedMovieControllers, this._mostCommentedMovieControllers)
+                                          .slice();
 
-        allMovieControllers.forEach((controller) => {
-          if (controller.filmId === newData.id) {
-            controller.render(newData);
+            allMovieControllers.forEach((controller) => {
+              if (controller.filmId === newData.id) {
+                controller.render(newData);
+              }
+            });
           }
         });
-      }
     }
   }
 
